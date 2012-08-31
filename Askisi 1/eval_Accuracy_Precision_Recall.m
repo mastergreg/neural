@@ -16,4 +16,3 @@ precision=sum(nnOutput2&expectedOutput2,2)./sum(nnOutput2,2);
 recall=sum(nnOutput2&expectedOutput2,2)./sum(expectedOutput2,2);
 
 
-
