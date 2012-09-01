@@ -37,7 +37,7 @@ EditedTrainDataTargets = EditedTrainDataTargets(:, suffle);
 
 [TestRemoved, ps] = processpca('apply', TestRemoved, ps);
 
-%evaled_DATA = [];
+%{
 for i = 1:6,
     for j = 1:6,
         j*5
@@ -53,10 +53,42 @@ for i = 1:6,
         evaled_DATA(i,j,:) = a;
     end
 end
+%}
 
 
+BFL = 15;
+BSL = 20;
 
 
+trainFunctions = {'traingdx', 'trainlm', 'traingd', 'traingda'};
+
+for k = 1:4,
+    for i = 1:6,
+        for j = 1:6,
+            net = newff(TrainRemoved, EditedTrainDataTargets, [5*i 5*j], {'tansig' 'tansig' 'purelin'} , char(trainFunctions(k)));
+            
+            net.divideParam.trainRatio = 0.8;
+            net.divideParam.valRatio = 0.2;
+            net.divideParam.testRatio = 0;
+            net.trainParam.epochs = 300;
+            
+            net = train(net, TrainRemoved, EditedTrainDataTargets);
+            TestDataOutput = sim(net, TestRemoved);
+            a = eval_Accuracy_Precision_Recall(TestDataOutput, TestDataTargets);
+            evaled_DATA(k,i,j,:) = a;
+            
+        end
+    end
+end
+
+
+save evaled_DATA;
+
+
+[maxAcc, ind] = max(evaled_DATA(:));
+[bFunc, bFL, bSL] = ind2sub(size(evaled_DATA), ind);
+
+printf('%s first layer: %d snd layer: %d\n', trainFunctions(bFunc), i*5, j*5);
 
 
 
